@@ -6,7 +6,7 @@ metadata:
   namespace: simplifier
 spec:
   hosts:
-  - kyma-simplifier.c-364b047.kyma.ondemand.com
+  - <your-full-qualified-domain-name-here>
   http:
     - route:
         - destination:
