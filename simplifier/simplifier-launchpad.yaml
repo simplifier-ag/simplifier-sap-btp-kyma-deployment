@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: simplifier-launchpad-pv
+  namespace: simplifier
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/simplifier-launchpad"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: simplifier-launchpad-pvc
+  namespace: simplifier
+spec:
+  storageClassName: manual
+  volumeName: simplifier-launchpad-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+# internal akka cluster usage
+apiVersion: v1
+kind: Service
+metadata:
+  name: simplifier-launchpad
+  namespace: simplifier
+spec:
+  selector:
+    app: simplifier-launchpad
+  clusterIP: None
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: simplifier-launchpad
+  namespace: simplifier
+spec:
+  serviceName: simplifier-launchpad
+  selector:
+    matchLabels:
+      app: simplifier-launchpad
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simplifier-launchpad
+    spec:
+      containers:
+        - image: simplifierag/launchpad:8.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "0.5Gi"
+              cpu: "0.1"
+            limits:
+              memory: "0.5Gi"
+              cpu: "0.5"
+          name: simplifier-launchpad
+          env:
+            - name: SECOND_SEED
+              value: simplifier-launchpad
+            - name: MODULE_HOST
+              value: simplifier-launchpad
+            - name: SIMPLIFIER_HOST
+              value: simplifier
+            - name: JVM_ARGS
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: LAUNCHPAD_JVM_HEAP_GB
+          volumeMounts:
+            - name: simplifier-launchpad-pv
+              mountPath: /home/launchpad/data
+
+      volumes:
+        - name: simplifier-launchpad-pv
+          persistentVolumeClaim:
+            claimName: simplifier-launchpad-pvc

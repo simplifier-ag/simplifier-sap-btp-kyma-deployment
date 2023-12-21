@@ -1,0 +1,66 @@
+# todo url
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: simplifier-svc
+  namespace: simplifier
+spec:
+  hosts:
+  - kyma-simplifier.c-364b047.kyma.ondemand.com
+  http:
+    - route:
+        - destination:
+            host: simplifier-external.simplifier.svc.cluster.local
+      corsPolicy:
+        allowOrigins:
+          - regex: .*
+        exposeHeaders:
+          - remainingTokenLifetime
+        allowHeaders:
+          - DNT
+          - X-CustomHeader
+          - Keep-Alive
+          - User-Agent
+          - X-Requested-With
+          - If-Modified-Since
+          - Cache-Control
+          - Content-Type
+          - Authorization
+          - SimplifierToken
+          - SimplifierApp
+          - SimplifierModule
+          - SimplifierModuleInterface
+          - SimplifierClientBusinessObject
+          - SimplifierClientBusinessObjectFunction
+          - sap-cancel-on-close
+          - sap-contextid-accept
+          - MaxDataServiceVersion
+          - DataServiceVersion
+          - Content-Length
+          - SimplifierApiKey
+          - OData-MaxVersion
+          - OData-Version
+          - MIME-Version
+          - X-CSRF-Token
+        allowMethods:
+          - POST
+          - GET
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        allowCredentials: true
+        maxAge: "24h"
+  gateways:
+    - kyma-system/kyma-gateway
+
+
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: simplifier-route
+  namespace: simplifier
+spec:
+  host: simplifier-external.simplifier.svc.cluster.local

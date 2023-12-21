@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysqlinit
+  namespace: simplifier
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - image: simplifierag/mysqlinit:1.0.0
+        name: mysqlinit
+        command: ["/runtime/mysqlinit"]
+        args: ["-config", "/config/config.yaml", "-user", "root", "-pass", "$(MYSQL_ROOT_PW)", "-endpoint", "mysql:3306"]
+        env:
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: simplifier-secrets
+                key: SIMPLIFIER_PW
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: simplifier-secrets
+                key: SIMPLIFIER_DB
+          - name: MYSQL_ROOT_PW
+            valueFrom:
+              secretKeyRef:
+                name: simplifier-secrets
+                key: MYSQL_ROOT_PW
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: simplifier-secrets
+                key: MYSQL_USER
+        volumeMounts:
+          - name: mysqlinit-volume
+            mountPath: /config
+
+      volumes:
+      - name: mysqlinit-volume
+        configMap:
+          name: mysqlinit-config

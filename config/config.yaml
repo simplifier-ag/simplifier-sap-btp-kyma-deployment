@@ -1,0 +1,72 @@
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: simplifier
+---
+
+# base64 encoded
+apiVersion: v1
+kind: Secret
+metadata:
+  name: simplifier-secrets
+  namespace: simplifier
+type: Opaque
+data:
+  MYSQL_ROOT_PW: <YourSecretPasswordforMySQLRootAccount>
+  SIMPLIFIER_PW: <YourSecretPasswordforSimplifierDatabase>
+  MYSQL_USER: <NameofSimplifierUserforSimplifierDatabase>
+  SIMPLIFIER_DB: <NameofSimplifierDatabase>
+
+---
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simplifier-config
+  namespace: simplifier
+data:
+  #SIMPLIFIER_VERSION=8.0
+  #HOST_DATA_PATH=/var/lib/simplifier
+  PLUGINLIST: "keyValueStorePlugin,pdfPlugin,captcha,contentRepoPlugin,jsonStore"
+  JVM_PARAMETER: "-Xmx8g -Xms2g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:-UseGCOverheadLimit -Xss256m"
+  MYSQL_HOST: "mysql"
+  MYSQL_PORT: "3306"
+
+  TZ: "Europe/Berlin"
+
+  # Workflow Runtime
+  WF_RT_JVM_HEAP_GB: "-Xmx1g"
+  # Workflow Runtime Archiving: https://community.simplifier.io/doc/installation-instructions/archiving/archiving-workflow-logs/
+  WF_ARCHIVE_ENABLED: "true"
+  WF_ARCHIVE_INTERVAL: "1 week"
+  WF_ARCHIVE_MAX_AGE_COMPLETED: "6 months"
+  WF_ARCHIVE_TIME: "02:00"
+  # Workflow Designtime
+  WF_DT_JVM_HEAP_GB: "-Xmx1g"
+
+  # Launchpad
+  LAUNCHPAD_JVM_HEAP_GB: "-Xmx0.5g"
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysqlinit-config
+  namespace: simplifier
+data:
+  config.yaml: |
+    database-owner:
+      login: ${MYSQL_USER}
+      password: ${DB_PASSWORD}
+      host: "%"
+    error-level: onGrant
+    databases:
+      - ${DB_NAME}
+      - ${DB_NAME}_content
+      - ${DB_NAME}_keyvalue
+      - ${DB_NAME}_session
+      - ${DB_NAME}_jsonstore
+      - ${DB_NAME}_wf_rt
+      - ${DB_NAME}_wf_dt

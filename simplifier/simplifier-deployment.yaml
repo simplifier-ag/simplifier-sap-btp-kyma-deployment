@@ -1,0 +1,141 @@
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: simplifier-pv
+  namespace: simplifier
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 15Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/simplifier"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: simplifier-pvc
+  namespace: simplifier
+spec:
+  storageClassName: manual
+  volumeName: simplifier-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+---
+
+# open for public
+apiVersion: v1
+kind: Service
+metadata:
+  name: simplifier-external
+  namespace: simplifier
+  labels:
+    app: simplifier
+spec:
+  ports:
+  - name: http
+    port: 8080
+  selector:
+    app: simplifier
+---
+
+# internal akka cluster usage
+apiVersion: v1
+kind: Service
+metadata:
+  name: simplifier
+  namespace: simplifier
+  labels:
+    app: simplifier
+spec:
+  clusterIP: None
+  selector:
+    app: simplifier
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: simplifier
+  namespace: simplifier
+spec:
+  selector:
+    matchLabels:
+      app: simplifier
+  serviceName: "simplifier"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simplifier
+    spec:
+      containers:
+        - image: simplifierag/simplifier:8.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1"
+            limits:
+              memory: "8Gi"
+              cpu: "2"
+          name: simplifier
+          ports:
+          - containerPort: 8080
+          env:
+            - name: SECOND_SEED
+              value: simplifier-launchpad
+            - name: MODULE_HOST
+              value: simplifier
+            - name: SIMPLIFIER_HOST
+              value: simplifier
+            - name: DB
+              value: mysql
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: MYSQL_PORT
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: MYSQL_HOST
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: SIMPLIFIER_PW
+            - name: MYSQL_DB
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: SIMPLIFIER_DB
+            - name: JVM_PARAMETER
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: JVM_PARAMETER
+          volumeMounts:
+            - name: simplifier-pv
+              mountPath: /opt/simplifier/data
+
+      volumes:
+        - name: simplifier-pv
+          persistentVolumeClaim:
+            claimName: simplifier-pvc

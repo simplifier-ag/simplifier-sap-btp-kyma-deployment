@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: simplifier-runtime-pv
+  namespace: simplifier
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/simplifier-runtime"
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: simplifier-runtime-pvc
+  namespace: simplifier
+spec:
+  storageClassName: manual
+  volumeName: simplifier-runtime-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+# internal akka cluster usage
+apiVersion: v1
+kind: Service
+metadata:
+  name: simplifier-runtime
+  namespace: simplifier
+spec:
+  selector:
+    app: simplifier-runtime
+  clusterIP: None
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: simplifier-runtime
+  namespace: simplifier
+spec:
+  serviceName: simplifier-runtime
+  selector:
+    matchLabels:
+      app: simplifier-runtime
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simplifier-runtime
+    spec:
+      containers:
+        - image: simplifierag/workflow-runtime:8.1
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          name: simplifier-runtime
+          env:
+            - name: SECOND_SEED
+              value: simplifier-launchpad
+            - name: MODULE_HOST
+              value: simplifier-runtime
+            - name: SIMPLIFIER_HOST
+              value: simplifier
+            - name: JVM_ARGS
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: WF_RT_JVM_HEAP_GB
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: MYSQL_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: SIMPLIFIER_PW
+            - name: DB_DATABASE
+              value: simplifier_wf_rt
+            - name: DB_HOST
+              value: mysql
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: MYSQL_PORT
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: TZ
+            - name: ARCHIVE_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: WF_ARCHIVE_ENABLED
+            - name: ARCHIVE_INTERVAL
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: WF_ARCHIVE_INTERVAL
+            - name: ARCHIVE_TIME
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: WF_ARCHIVE_TIME
+                  # TODO url
+            - name: SIMPLIFIER_LAUNCHPAD_BASE_URL
+              value: "https://simplifier-kyma.c-06f845f.kyma.ondemand.com"
+          volumeMounts:
+            - name: simplifier-runtime-pv
+              mountPath: /home/workflow-runtime/data
+
+      volumes:
+        - name: simplifier-runtime-pv
+          persistentVolumeClaim:
+            claimName: simplifier-runtime-pvc
