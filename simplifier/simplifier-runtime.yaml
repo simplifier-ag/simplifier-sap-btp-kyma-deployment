@@ -123,7 +123,7 @@ spec:
                   key: WF_ARCHIVE_TIME
                   # TODO url
             - name: SIMPLIFIER_LAUNCHPAD_BASE_URL
-              value: "https://simplifier-kyma.c-06f845f.kyma.ondemand.com"
+              value: "https://<your-name>.kyma.ondemand.com"
           volumeMounts:
             - name: simplifier-runtime-pv
               mountPath: /home/workflow-runtime/data
