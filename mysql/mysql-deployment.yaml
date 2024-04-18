@@ -53,6 +53,7 @@ spec:
 
 
 ---
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:						 
@@ -60,7 +61,6 @@ metadata:
   namespace: simplifier
 spec:
   storageClassName: default
-  volumeName: mysql-pv
   accessModes:
     - ReadWriteOnce
   resources:

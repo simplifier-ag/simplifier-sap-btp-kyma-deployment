@@ -40,9 +40,6 @@ spec:
       labels:
         app: simplifier-designtime
     spec:
-      # todo remove after arm image
-#      securityContext:
-#        runAsUser: 0
       containers:
         - image: simplifierag/workflow-designtime:8.1
           imagePullPolicy: Always
