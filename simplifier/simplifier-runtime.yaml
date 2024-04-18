@@ -1,29 +1,10 @@
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: simplifier-runtime-pv
-  namespace: simplifier
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data/simplifier-runtime"
-
----
-
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: simplifier-runtime-pvc
   namespace: simplifier
 spec:
-  storageClassName: manual
-  volumeName: simplifier-runtime-pv
+  storageClassName: default
   accessModes:
     - ReadWriteOnce
   resources:
@@ -121,14 +102,13 @@ spec:
                 configMapKeyRef:
                   name: simplifier-config
                   key: WF_ARCHIVE_TIME
-                  # TODO url
             - name: SIMPLIFIER_LAUNCHPAD_BASE_URL
               value: "https://<your-name>.kyma.ondemand.com"
           volumeMounts:
-            - name: simplifier-runtime-pv
+            - name: simplifier-runtime-storage
               mountPath: /home/workflow-runtime/data
 
       volumes:
-        - name: simplifier-runtime-pv
+        - name: simplifier-runtime-storage
           persistentVolumeClaim:
             claimName: simplifier-runtime-pvc

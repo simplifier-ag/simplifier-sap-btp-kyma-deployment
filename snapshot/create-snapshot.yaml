@@ -1,0 +1,63 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: snapshot-mysql
+  namespace: simplifier
+spec:
+  volumeSnapshotClassName: default
+  source:
+    persistentVolumeClaimName: mysql-pvc
+
+---
+
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: snapshot-simplifier
+  namespace: simplifier
+spec:
+  volumeSnapshotClassName: default
+  source:
+    persistentVolumeClaimName: simplifier-pvc
+
+---
+
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: snapshot-simplifier-designtime
+  namespace: simplifier
+spec:
+  volumeSnapshotClassName: default
+  source:
+    persistentVolumeClaimName: simplifier-designtime-pvc
+
+---
+
+
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: snapshot-simplifier-launchpad
+  namespace: simplifier
+spec:
+  volumeSnapshotClassName: default
+  source:
+    persistentVolumeClaimName: simplifier-launchpad-pvc
+
+---
+
+
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: snapshot-simplifier-runtime
+  namespace: simplifier
+spec:
+  volumeSnapshotClassName: default
+  source:
+    persistentVolumeClaimName: simplifier-runtime-pvc
+
+---
+
+

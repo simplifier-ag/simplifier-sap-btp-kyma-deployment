@@ -1,29 +1,10 @@
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: simplifier-designtime-pv
-  namespace: simplifier
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/data/simplifier-designtime"
-
----
-
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: simplifier-designtime-pvc
   namespace: simplifier
 spec:
-  storageClassName: manual
-  volumeName: simplifier-designtime-pv
+  storageClassName: default
   accessModes:
     - ReadWriteOnce
   resources:
@@ -110,9 +91,9 @@ spec:
                   name: simplifier-config
                   key: TZ
           volumeMounts:
-            - name: simplifier-designtime-pv
+            - name: simplifier-designtime-storage
               mountPath: /home/workflowDesigntime/data
       volumes:
-        - name: simplifier-designtime-pv
+        - name: simplifier-designtime-storage
           persistentVolumeClaim:
             claimName: simplifier-designtime-pvc
