@@ -42,7 +42,7 @@ spec:
         app: simplifier-launchpad
     spec:
       containers:
-        - image: simplifierag/launchpad:8.1
+        - image: simplifierag/launchpad:9
           imagePullPolicy: Always
           resources:
             requests:

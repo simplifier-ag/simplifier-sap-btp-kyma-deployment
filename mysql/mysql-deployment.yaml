@@ -32,7 +32,7 @@ spec:
       containers:
       - image: mysql:8.0
         name: mysql
-        args: ["--max_allowed_packet=1073741824", "--wait_timeout=28800", "--default-authentication-plugin=caching_sha2_password", "--log_bin_trust_function_creators=1"]
+        args: ["--max_allowed_packet=1073741824", "--wait_timeout=28800", "--default-authentication-plugin=caching_sha2_password", "--log_bin_trust_function_creators=1", "--expire-logs-days=7"]
         env:
           # Use secret in real usage
         - name: MYSQL_ROOT_PASSWORD

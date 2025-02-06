@@ -41,7 +41,7 @@ spec:
         app: simplifier-designtime
     spec:
       containers:
-        - image: simplifierag/workflow-designtime:8.1
+        - image: simplifierag/workflow-designtime:9
           imagePullPolicy: Always
           resources:
             requests:
@@ -90,7 +90,14 @@ spec:
           volumeMounts:
             - name: simplifier-designtime-storage
               mountPath: /home/workflowDesigntime/data
+          # volumeMounts:
+          #   - name: simplifier-shared
+          #     mountPath: /home/workflowDesigntime/shared
       volumes:
         - name: simplifier-designtime-storage
           persistentVolumeClaim:
             claimName: simplifier-designtime-pvc
+      # volumes:
+      #   - name: simplifier-shared
+      #     persistentVolumeClaim:
+      #       claimName: simplifier-pvc-shared

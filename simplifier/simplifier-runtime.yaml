@@ -41,7 +41,7 @@ spec:
         app: simplifier-runtime
     spec:
       containers:
-        - image: simplifierag/workflow-runtime:8.1
+        - image: simplifierag/workflow-runtime:9
           imagePullPolicy: Always
           resources:
             requests:

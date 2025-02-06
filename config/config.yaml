@@ -5,6 +5,20 @@ metadata:
   name: simplifier
 ---
 
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: simplifier-pvc-shared
+#   namespace: simplifier
+# spec:
+#   storageClassName: default
+#   accessModes:
+#     - ReadWriteMany
+#   resources:
+#     requests:
+#       storage: 5Gi
+# ---
+
 # base64 encoded
 apiVersion: v1
 kind: Secret
@@ -17,6 +31,7 @@ data:
   SIMPLIFIER_PW: <YourSecretPasswordforSimplifierDatabase>
   MYSQL_USER: <NameofSimplifierUserforSimplifierDatabase>
   SIMPLIFIER_DB: <NameofSimplifierDatabase>
+  SIMPLIFIER_DB_MONITORING: <NameOfSimplifierMonitoringDatabase - Should be same as Simplifier db + "_monitoring">
 
 ---
 
@@ -70,3 +85,4 @@ data:
       - ${DB_NAME}_jsonstore
       - ${DB_NAME}_wf_rt
       - ${DB_NAME}_wf_dt
+      - ${DB_NAME}_monitoring

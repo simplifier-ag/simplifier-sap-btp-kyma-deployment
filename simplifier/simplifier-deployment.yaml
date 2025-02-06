@@ -62,7 +62,7 @@ spec:
         app: simplifier
     spec:
       containers:
-        - image: simplifierag/simplifier:8.1
+        - image: simplifierag/simplifier:9
           imagePullPolicy: Always
           resources:
             requests:
@@ -113,11 +113,47 @@ spec:
                 configMapKeyRef:
                   name: simplifier-config
                   key: JVM_PARAMETER
+
+            - name: MONITORING_DBMS
+              value: mysql
+            - name: MONITORING_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: MYSQL_HOST
+            - name: MONITORING_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: MYSQL_PORT
+            - name: MONITORING_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: MYSQL_USER
+            - name: MONITORING_DB_PASS
+              valueFrom:
+                    secretKeyRef:
+                      name: simplifier-secrets
+                      key: SIMPLIFIER_PW
+            - name: MONITORING_DB
+              valueFrom:
+                secretKeyRef:
+                  name: simplifier-secrets
+                  key: SIMPLIFIER_DB_MONITORING
           volumeMounts:
             - name: simplifier-storage
               mountPath: /opt/simplifier/data
+          # volumeMounts:
+          #   - name: simplifier-shared
+          #     mountPath: /opt/simplifier/shared
 
       volumes:
         - name: simplifier-storage
           persistentVolumeClaim:
             claimName: simplifier-pvc
+
+      # volumes:
+      #   - name: simplifier-shared
+      #     persistentVolumeClaim:
+      #       claimName: simplifier-pvc-shared
