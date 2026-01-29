@@ -26,7 +26,7 @@ metadata:
   name: simplifier-secrets
   namespace: simplifier
 type: Opaque
-data:
+stringData:
   MYSQL_ROOT_PW: <YourSecretPasswordforMySQLRootAccount>
   SIMPLIFIER_PW: <YourSecretPasswordforSimplifierDatabase>
   MYSQL_USER: <NameofSimplifierUserforSimplifierDatabase>
