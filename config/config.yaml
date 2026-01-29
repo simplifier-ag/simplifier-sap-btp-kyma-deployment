@@ -48,6 +48,7 @@ data:
   JVM_PARAMETER: "-Xmx8g -Xms2g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:-UseGCOverheadLimit -Xss256m"
   MYSQL_HOST: "mysql"
   MYSQL_PORT: "3306"
+  SIMPLIFIER_HOST: "https://simplifier.<your instance>.kyma.ondemand.com"
 
   TZ: "Europe/Berlin"
 
