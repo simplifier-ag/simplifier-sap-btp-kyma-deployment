@@ -103,7 +103,10 @@ spec:
                   name: simplifier-config
                   key: WF_ARCHIVE_TIME
             - name: SIMPLIFIER_LAUNCHPAD_BASE_URL
-              value: "https://<your-name>.kyma.ondemand.com"
+              valueFrom:
+                configMapKeyRef:
+                  name: simplifier-config
+                  key: SIMPLIFIER_HOST
           volumeMounts:
             - name: simplifier-runtime-storage
               mountPath: /home/workflow-runtime/data
